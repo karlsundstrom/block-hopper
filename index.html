@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Block Hopper</title>\
+        <title>Block Hopper</title>
         <style>
             canvas {
                 border: 2px solid black;
@@ -18,9 +18,20 @@
             <script>
                 var canvasWidth = 600;
                 var canvasHeight = 400;
+                var player;
+                var block;
+                var playerYPosition = 200;
+                var fallSpeed = 0;
+                var interval = setInterval(updateCanvas, 20)
+
+                var isJumping = false;
+                var jumpSpeed = 0;
+                var onGround = false;
 
                 function startGame() {
                     gameCanvas.start();
+                    player = new createPlayer(30, 30, 10);
+                    block = new createBlock()
                 }
 
                 var gameCanvas = {
@@ -33,6 +44,100 @@
                     }
 
                 }
+
+                function createPlayer(width, height, x) {
+                    this.width = width;
+                    this.height = height;
+                    this.x = x;
+                    this.y = playerYPosition;
+
+                    this.draw = function() {
+                        ctx = gameCanvas.context
+                        ctx.fillStyle = "green";
+                        ctx.fillRect(this.x, this.y, this.width, this.height);
+                    }
+
+                    this.makeFall = function() {
+                        if (isJumping === false) {
+                            this.y += fallSpeed;
+                            fallSpeed += 0.1;
+                            this.stopPlayer()
+                        }
+
+                    }
+
+                    this.stopPlayer = function() {
+                        var ground = canvasHeight - this.height;
+                        var ceiling = 0
+                        if (this.y > ground) {
+                            this.y = ground;
+                        }
+                        if (this.y < ceiling) {
+                            this.y = ceiling;
+                        }
+                    }
+
+                    this.jump = function() {
+                            
+                        if (isJumping) {
+                            this.fallSpeed = 0;
+                            this.y += jumpSpeed
+                            jumpSpeed -= .1
+                            this.stopPlayer()
+
+                        }
+
+                    }
+
+                    this.resetJump = function() {
+                        jumpSpeed = 0;
+                    }
+
+                }
+
+                function createBlock() {
+                    this.width = 10
+                    this.height = 300
+                    this.speed = 1
+                    this.x = canvasWidth;
+                    this.y = canvasHeight - this.height;
+
+
+                    this.draw = function() {
+                        ctx = gameCanvas.context
+                        ctx.fillStyle = "red";
+                        ctx.fillRect(this.x, this.y, this.width, this.height);
+                    }
+
+                    this.attackPlayer = function() {
+                        this.x -= this.speed
+                    }
+                }
+                
+
+                function updateCanvas() {
+                    ctx = gameCanvas.context
+                    ctx.clearRect(0, 0, canvasWidth, canvasHeight)
+
+                    player.makeFall();
+                    player.draw();
+                    player.jump();
+                    block.draw();
+
+                }
+
+                addEventListener("keydown", (event) => {
+                    if (event.key === " ") {
+                        isJumping = true
+                    }
+                })
+
+                addEventListener("keyup", (event) => {
+                    if (event.key === " ") {
+                        player.resetJump();
+                        isJumping = false
+                    }
+                })
             </script>
     </body>
 
