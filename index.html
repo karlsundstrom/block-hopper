@@ -120,12 +120,13 @@
 
                     this.return = function() {
                         if (this.x < 0 - this.width) {
+                            scoreLabel.score += this.speed * 5;
+
                             this.width = random(canvasWidth / 3, 10)
                             this.height = random((canvasHeight - canvasHeight / 3), 100)
                             this.speed = random(8, 1)
                             this.y = this.y = canvasHeight - this.height
                             this.x = canvasWidth + this.width
-                            scoreLabel.score += 1;
                         }
                     }
                 }
@@ -167,11 +168,16 @@
                     scoreLabel.draw()
                     if (!gameOver) {
                     detectCollision()
-                    player.makeFall();
-                    player.draw();
-                    player.jump();
-                    block.draw();
-                    block.attackPlayer();}
+                        player.makeFall();
+                        player.draw();
+                        player.jump();
+                        block.draw();
+                        block.attackPlayer();
+                        scoreLabel.draw()
+                        console.log(scoreLabel.score)
+                
+                    }
+
                 }
 
                 addEventListener("keydown", (event) => {
