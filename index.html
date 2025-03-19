@@ -16,6 +16,10 @@
         <body onload="startGame()">
             <h1>Block Hopper</h1>
             <script>
+                var gameOver = false;
+                var score = 0;
+                var scoreLabel;
+                
                 var canvasWidth = 600;
                 var canvasHeight = 400;
                 var player;
@@ -32,6 +36,7 @@
                     gameCanvas.start();
                     player = new createPlayer(30, 30, 10);
                     block = new createBlock()
+                    scoreLabel = new createScoreLabel(10, 30)
                 }
 
                 var gameCanvas = {
@@ -42,7 +47,6 @@
                         this.context = this.canvas.getContext("2d");
                         document.body.insertBefore(this.canvas, document.body.childNodes[0]);
                     }
-
                 }
 
                 function createPlayer(width, height, x) {
@@ -96,11 +100,11 @@
                 }
 
                 function createBlock() {
-                    this.width = 10
-                    this.height = 300
-                    this.speed = 1
-                    this.x = canvasWidth;
-                    this.y = canvasHeight - this.height;
+                    this.width = random(150, 10)
+                    this.height = random(350, 100)
+                    this.speed = random(8, 1)
+                    this.x = canvasWidth + this.width
+                    this.y = canvasHeight - this.height
 
 
                     this.draw = function() {
@@ -111,19 +115,63 @@
 
                     this.attackPlayer = function() {
                         this.x -= this.speed
+                        this.return()
+                    }
+
+                    this.return = function() {
+                        if (this.x < 0 - this.width) {
+                            this.width = random(canvasWidth / 3, 10)
+                            this.height = random((canvasHeight - canvasHeight / 3), 100)
+                            this.speed = random(8, 1)
+                            this.y = this.y = canvasHeight - this.height
+                            this.x = canvasWidth + this.width
+                            scoreLabel.score += 1;
+                        }
+                    }
+                }
+
+                function createScoreLabel(x, y) {
+                    this.score = 0
+                    this.x = x
+                    this.y = y
+                    this.text = `SCORE: ${this.score}`
+                    this.draw = function() {
+                        ctx = gameCanvas.context
+                        ctx.font = "30px Marker Felt"
+                        ctx.fillStyle = "black"
+                        ctx.fillText(this.text, this.x, this.y)
                     }
                 }
                 
+                function random(x, y) {
+                    return Math.ceil((Math.random() * (x - y)) + y )
+                }
+
+                function detectCollision() {
+                    var playerLeft = player.x;
+                    var playerRight = player.x + player.width;
+                    var blockLeft = block.x;
+                    var blockRight = block.x + block.width;
+
+                    var playerArse = player.y + player.height;
+                    var blockTop = block.y;
+
+                    if (playerRight > blockLeft && playerLeft < blockLeft && playerArse > blockTop) {
+                        gameOver = true;
+                    }
+                }
 
                 function updateCanvas() {
                     ctx = gameCanvas.context
                     ctx.clearRect(0, 0, canvasWidth, canvasHeight)
-
+                    scoreLabel.draw()
+                    if (!gameOver) {
+                    detectCollision()
                     player.makeFall();
                     player.draw();
                     player.jump();
                     block.draw();
-
+                    block.attackPlayer();}
                 }
 
                 addEventListener("keydown", (event) => {
