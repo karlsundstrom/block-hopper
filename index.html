@@ -22,7 +22,25 @@
                 padding: 10px 20px;
                 font-size: 10px;
                 cursor: pointer;
-                visibility: block;
+                visibility: visible;
+                border-radius: 50%;
+            }
+
+            #hiScoreCont {
+                position: absolute;
+                top: 50px;
+                left: 500px;
+                border: 2px solid black;
+            }
+
+            ol {
+                list-style-type: none;
+            }
+
+            .highLight {
+                background: lightgray;
+                border-radius: 10%;
+                
             }
         </style>
     </head>
@@ -33,15 +51,19 @@
             <div id="btnContainer">
                 <button id="startButton">Start Game</button>
             </div>
+            <div id="hiScoreCont">
+                
+            </div>
             
 
 
 
             <script>
                 const startBtn = document.getElementById("startButton")
-                var isGameOver
+                const hiScoreDiv = document.getElementById("hiScoreCont")
+                var isGameOver = false
                 var score = 0;
-                var hiScore = 0;
+                var hiScore = [];
                 var scoreLabel;
                 
                 var canvasWidth = 600;
@@ -61,7 +83,6 @@
                     if (!isGameOver) {
                         startBtn.style.visibility = "hidden"
                     }
-
                     gameCanvas.start()
                     player = new createPlayer(30, 30, 10);
                     block = new createBlock()
@@ -191,15 +212,29 @@
                     }
                 }
 
-                function GameOver() {
+                function gameOver() {
+                    hiScoreList()
                     isGameOver = true
-                    startBtn.style.visibility = "show"
+                    startBtn.style.visibility = "visible"
+                    hiScore.push(scoreLabel.score)
+                    console.log(hiScore)
+                }
+
+                function hiScoreList() {
+                    hiScoreDiv.innerHTML += 
+                    `
+                        <ol>
+                            <li>
+                                <span class="highLight">${scoreLabel.score}</span>
+                            </li>
+                        </ol>
+                `
+
                 }
 
                 function updateCanvas() {
                     ctx = gameCanvas.context
                     ctx.clearRect(0, 0, canvasWidth, canvasHeight)
-                    scoreLabel.draw()
                     if (!isGameOver) {
                     detectCollision()
                         player.makeFall();
@@ -228,6 +263,7 @@
                 })
 
                 startBtn.addEventListener("click", () => {
+                    isGameOver = false;
                     startGame()
                 })
             </script>
